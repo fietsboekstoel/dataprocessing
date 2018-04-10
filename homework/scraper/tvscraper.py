@@ -26,6 +26,54 @@ def extract_tvseries(dom):
     - Actors/actresses (comma separated if more than one)
     - Runtime (only a number!)
     """
+    # go over all 50 series
+    for link in dom.find_all('div', class_="lister-item-content"):
+
+        # get title
+        title = link.h3.a.text
+        print(title)
+        # add title to list oid
+
+        # get rating
+        rating = link.find('div', class_="inline-block ratings-imdb-rating")
+        rating_text = rating.strong.text
+        print(rating_text)
+        # add rating to list oid
+
+        # get genres
+        genres = link.p.find('span', class_ = "genre")
+        genres_text = genres.text
+        print(genres_text)
+        # add Genres to list oid
+        # haal enter eruit
+        # waarom loopt ie bij mecanismo vast?
+
+        # get actors
+        classes = link.find_all('p')
+        actor_class = classes[2]
+        # print(actor_class)
+        # actor_class = link.find('p', class_ = "")
+        actors = actor_class.find_all('a')
+        # optie toevoegen voor geen actors?
+        # print(actors)
+        for actor in actors:
+            # optie toevoegen voor lege actor?
+            actor_name = actor.text
+            print(actor_name)
+        # doe ze achter elkaar met komma zonder spatie
+        # add Actors to list oid
+
+        # get runtime
+        runtime = link.p.find('span', class_ = "runtime")
+        if not runtime.text:
+            runtime_text = "unknown"
+        else:
+            runtime_text = runtime.text
+        print(runtime_text)
+        # add runtime_text to list oid
+        # change to only Number (not min)
+
+        # how do I leave unicode out of output?
 
     # ADD YOUR CODE HERE TO EXTRACT THE ABOVE INFORMATION ABOUT THE
     # HIGHEST RATED TV-SERIES
