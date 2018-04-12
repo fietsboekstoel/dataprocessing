@@ -26,61 +26,84 @@ def extract_tvseries(dom):
     - Actors/actresses (comma separated if more than one)
     - Runtime (only a number!)
     """
-    # go over all 50 series
+    # create head list to contain a list per movie
+    multiple_movies = []
+
+    # iterate over top 50 series
     for link in dom.find_all('div', class_="lister-item-content"):
 
-        # get title
-        title = link.h3.a.text
-        print(title)
-        # add title to list oid
+        #create a list for current movie
+        one_movie = []
 
-        # get rating
+        # retrieve title from imdb
+        if not link.h3.a.text:
+            title = "unknown"
+        else:
+            title = link.h3.a.text
+        # add title to list current movie
+        one_movie.append(title)
+
+
+        # retrieve rating from imdb
         rating = link.find('div', class_="inline-block ratings-imdb-rating")
-        rating_text = rating.strong.text
-        print(rating_text)
-        # add rating to list oid
+        if not rating.strong.text:
+            rating_text = "unknown"
+        else:
+            rating_text = rating.strong.text
+        # add rating to list current movie
+        one_movie.append(rating_text)
 
-        # get genres
+        # retrieve genres from imdb
         genres = link.p.find('span', class_ = "genre")
-        genres_text = genres.text
-        print(genres_text)
-        # add Genres to list oid
-        # haal enter eruit
-        # waarom loopt ie bij mecanismo vast?
+        if not genres.text:
+            genres_text = "unknown"
+        else:
+            genres_text = genres.text
+            genres_text = genres_text.strip('\n')
+            genres_text = genres_text.strip(' ')
+        # add genres to list current movie
+        one_movie.append(genres_text)
 
-        # get actors
+        # retrieve actors from imdb
+        # select gebruiken?
         classes = link.find_all('p')
         actor_class = classes[2]
-        # print(actor_class)
-        # actor_class = link.find('p', class_ = "")
         actors = actor_class.find_all('a')
         # optie toevoegen voor geen actors?
-        # print(actors)
+        # misschien veranderen naar op name?
+        actor_list = ""
+        counter = 0
         for actor in actors:
             # optie toevoegen voor lege actor?
             actor_name = actor.text
-            print(actor_name)
-        # doe ze achter elkaar met komma zonder spatie
+            if counter != 0:
+                actor_list = actor_list + ", " + actor_name
+            else:
+                actor_list += actor_name
+                counter += 1
+        one_movie.append(actor_list)
         # add Actors to list oid
 
-        # get runtime
+        # retrieve runtime from imdb
         runtime = link.p.find('span', class_ = "runtime")
         if not runtime.text:
             runtime_text = "unknown"
         else:
             runtime_text = runtime.text
-        print(runtime_text)
-        # add runtime_text to list oid
-        # change to only Number (not min)
+            # ensure time in numbers only
+            runtime_time = ""
+            for let_or_num in runtime_text:
+                if let_or_num.isnumeric() is True:
+                    runtime_time += let_or_num
+        # add runtime_text to list current movie
+        one_movie.append(runtime_time)
+
+        # add current movie to head list
+        multiple_movies.append(one_movie)
 
         # how do I leave unicode out of output?
 
-    # ADD YOUR CODE HERE TO EXTRACT THE ABOVE INFORMATION ABOUT THE
-    # HIGHEST RATED TV-SERIES
-    # NOTE: FOR THIS EXERCISE YOU ARE ALLOWED (BUT NOT REQUIRED) TO IGNORE
-    # UNICODE CHARACTERS AND SIMPLY LEAVE THEM OUT OF THE OUTPUT.
-
-    return []   # REPLACE THIS LINE AS WELL AS APPROPRIATE
+    return multiple_movies
 
 
 def save_csv(outfile, tvseries):
@@ -90,7 +113,9 @@ def save_csv(outfile, tvseries):
     writer = csv.writer(outfile)
     writer.writerow(['Title', 'Rating', 'Genre', 'Actors', 'Runtime'])
 
-    # ADD SOME CODE OF YOURSELF HERE TO WRITE THE TV-SERIES TO DISK
+    # write list per movie to csv
+    for movie in tvseries:
+        writer.writerow(movie)
 
 
 def simple_get(url):
