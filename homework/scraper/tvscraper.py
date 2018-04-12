@@ -10,8 +10,11 @@ from requests import get
 from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
+import re
 
 TARGET_URL = "http://www.imdb.com/search/title?num_votes=5000,&sort=user_rating,desc&start=1&title_type=tv_series"
+# extra url lacking runtime to check
+# TARGET_URL = "http://www.imdb.com/search/title?num_votes=5000,&start=1&title_type=tv_series&sort=runtime,desc&page=29&ref_=adv_nxt"
 BACKUP_HTML = 'tvseries.html'
 OUTPUT_CSV = 'tvseries.csv'
 
@@ -29,79 +32,97 @@ def extract_tvseries(dom):
     # create head list to contain a list per movie
     multiple_movies = []
 
-    # iterate over top 50 series
+    # iterate over top 50 series on imdb
     for link in dom.find_all('div', class_="lister-item-content"):
 
         #create a list for current movie
         one_movie = []
 
-        # retrieve title from imdb
+        # ensure title is available on imdb
         if not link.h3.a.text:
             title = "unknown"
+
+        # retrieve title from imdb
         else:
             title = link.h3.a.text
+
         # add title to list current movie
         one_movie.append(title)
 
-
-        # retrieve rating from imdb
+        # ensure rating is available on imdb
         rating = link.find('div', class_="inline-block ratings-imdb-rating")
         if not rating.strong.text:
             rating_text = "unknown"
+
+        # retrieve rating from imdb
         else:
             rating_text = rating.strong.text
+
         # add rating to list current movie
         one_movie.append(rating_text)
 
-        # retrieve genres from imdb
+        # ensure genres are available on imdb
         genres = link.p.find('span', class_ = "genre")
         if not genres.text:
             genres_text = "unknown"
+
+        # retrieve genres from imdb
         else:
-            genres_text = genres.text
-            genres_text = genres_text.strip('\n')
-            genres_text = genres_text.strip(' ')
+            genres_text = genres.text.strip()
+
         # add genres to list current movie
         one_movie.append(genres_text)
 
-        # retrieve actors from imdb
-        # select gebruiken?
-        classes = link.find_all('p')
-        actor_class = classes[2]
-        actors = actor_class.find_all('a')
-        # optie toevoegen voor geen actors?
-        # misschien veranderen naar op name?
-        actor_list = ""
-        counter = 0
-        for actor in actors:
-            # optie toevoegen voor lege actor?
-            actor_name = actor.text
-            if counter != 0:
-                actor_list = actor_list + ", " + actor_name
-            else:
-                actor_list += actor_name
-                counter += 1
+        # ensure actors are available on imdb
+        if not link.find_all(class_="", href=re.compile("name")):
+            actor_list = "unknown"
+
+        else:
+
+            # create string to add actor names to
+            actor_list = ""
+
+            # retrieve actors from imdb
+            actors = link.find_all(class_="", href=re.compile("name"))
+
+            # create counter to separate actor names with comma's
+            counter = 0
+            for actor in actors:
+                actor_name = actor.text
+
+                # add comma before every actor name except first
+                if counter != 0:
+                    actor_list = actor_list + ", " + actor_name
+                else:
+                    actor_list += actor_name
+                    counter += 1
+        # add actors to list current movie
         one_movie.append(actor_list)
-        # add Actors to list oid
+
+        # ensure runtime is available on imdb
+        # wat als class verdwijnt als ie leeg is? bij de andere categorieën!
+        if not link.p.find('span', class_ = "runtime"):
+            runtime_time = "unknown"
 
         # retrieve runtime from imdb
-        runtime = link.p.find('span', class_ = "runtime")
-        if not runtime.text:
-            runtime_text = "unknown"
         else:
+            runtime = link.p.find('span', class_ = "runtime")
             runtime_text = runtime.text
+
             # ensure time in numbers only
             runtime_time = ""
             for let_or_num in runtime_text:
                 if let_or_num.isnumeric() is True:
                     runtime_time += let_or_num
-        # add runtime_text to list current movie
+
+        # add runtime to list current movie
         one_movie.append(runtime_time)
 
         # add current movie to head list
         multiple_movies.append(one_movie)
 
         # how do I leave unicode out of output?
+        print(one_movie)
 
     return multiple_movies
 
