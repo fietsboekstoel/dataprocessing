@@ -29,14 +29,14 @@ def extract_tvseries(dom):
     - Actors/actresses (comma separated if more than one)
     - Runtime (only a number!)
     """
-    # create head list to contain a list per movie
-    multiple_movies = []
+    # create head list to contain a list per series
+    multiple_series = []
 
     # iterate over top 50 series on imdb
     for link in dom.find_all('div', class_="lister-item-content"):
 
-        #create a list for current movie
-        one_movie = []
+        #create a list for current series
+        one_series = []
 
         # ensure title is available on imdb
         if not link.h3.a.text:
@@ -46,8 +46,8 @@ def extract_tvseries(dom):
         else:
             title = link.h3.a.text
 
-        # add title to list current movie
-        one_movie.append(title)
+        # add title to list current series
+        one_series.append(title)
 
         # ensure rating is available on imdb
         rating = link.find('div', class_="inline-block ratings-imdb-rating")
@@ -58,8 +58,8 @@ def extract_tvseries(dom):
         else:
             rating_text = rating.strong.text
 
-        # add rating to list current movie
-        one_movie.append(rating_text)
+        # add rating to list current series
+        one_series.append(rating_text)
 
         # ensure genres are available on imdb
         genres = link.p.find('span', class_ = "genre")
@@ -70,8 +70,8 @@ def extract_tvseries(dom):
         else:
             genres_text = genres.text.strip()
 
-        # add genres to list current movie
-        one_movie.append(genres_text)
+        # add genres to list current series
+        one_series.append(genres_text)
 
         # ensure actors are available on imdb
         if not link.find_all(class_="", href=re.compile("name")):
@@ -79,28 +79,25 @@ def extract_tvseries(dom):
 
         else:
 
-            # create string to add actor names to
-            actor_list = ""
+            # create list to add actor names to
+            actor_list = []
 
             # retrieve actors from imdb
             actors = link.find_all(class_="", href=re.compile("name"))
 
-            # create counter to separate actor names with comma's
-            counter = 0
+            # add actors to list
             for actor in actors:
                 actor_name = actor.text
+                actor_list.append(actor_name)
 
-                # add comma before every actor name except first
-                if counter != 0:
-                    actor_list = actor_list + ", " + actor_name
-                else:
-                    actor_list += actor_name
-                    counter += 1
+            # combine actor names in string separated by comma's
+            s = ", "
+            actor_string = s.join(actor_list)
+
         # add actors to list current movie
-        one_movie.append(actor_list)
+        one_series.append(actor_string)
 
         # ensure runtime is available on imdb
-        # wat als class verdwijnt als ie leeg is? bij de andere categorieën!
         if not link.p.find('span', class_ = "runtime"):
             runtime_time = "unknown"
 
@@ -110,21 +107,15 @@ def extract_tvseries(dom):
             runtime_text = runtime.text
 
             # ensure time in numbers only
-            runtime_time = ""
-            for let_or_num in runtime_text:
-                if let_or_num.isnumeric() is True:
-                    runtime_time += let_or_num
+            runtime_time = runtime_text.strip(' min')
 
-        # add runtime to list current movie
-        one_movie.append(runtime_time)
+        # add runtime to list current series
+        one_series.append(runtime_time)
 
-        # add current movie to head list
-        multiple_movies.append(one_movie)
+        # add current series to head list
+        multiple_series.append(one_series)
 
-        # how do I leave unicode out of output?
-        print(one_movie)
-
-    return multiple_movies
+    return multiple_series
 
 
 def save_csv(outfile, tvseries):
@@ -134,7 +125,7 @@ def save_csv(outfile, tvseries):
     writer = csv.writer(outfile)
     writer.writerow(['Title', 'Rating', 'Genre', 'Actors', 'Runtime'])
 
-    # write list per movie to csv
+    # write list per series to csv output file
     for movie in tvseries:
         writer.writerow(movie)
 
@@ -183,5 +174,5 @@ if __name__ == "__main__":
     tvseries = extract_tvseries(dom)
 
     # write the CSV file to disk (including a header)
-    with open(OUTPUT_CSV, 'w', newline='') as output_file:
+    with open(OUTPUT_CSV, 'w', newline='', encoding='utf-8') as output_file:
         save_csv(output_file, tvseries)
