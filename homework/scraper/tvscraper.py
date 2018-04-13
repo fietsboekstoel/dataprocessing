@@ -35,7 +35,7 @@ def extract_tvseries(dom):
     # iterate over top 50 series on imdb
     for link in dom.find_all('div', class_="lister-item-content"):
 
-        #create a list for current series
+        # create a list for current series
         one_series = []
 
         # ensure title is available on imdb
@@ -50,24 +50,24 @@ def extract_tvseries(dom):
         one_series.append(title)
 
         # ensure rating is available on imdb
-        rating = link.find('div', class_="inline-block ratings-imdb-rating")
-        if not rating.strong.text:
+        if not link.find('div', class_="inline-block ratings-imdb-rating"):
             rating_text = "unknown"
 
         # retrieve rating from imdb
         else:
+            rating = link.find('div', class_="inline-block ratings-imdb-rating")
             rating_text = rating.strong.text
 
         # add rating to list current series
         one_series.append(rating_text)
 
         # ensure genres are available on imdb
-        genres = link.p.find('span', class_ = "genre")
-        if not genres.text:
+        if not link.p.find('span', class_="genre"):
             genres_text = "unknown"
 
         # retrieve genres from imdb
         else:
+            genres = link.p.find('span', class_="genre")
             genres_text = genres.text.strip()
 
         # add genres to list current series
@@ -98,12 +98,12 @@ def extract_tvseries(dom):
         one_series.append(actor_string)
 
         # ensure runtime is available on imdb
-        if not link.p.find('span', class_ = "runtime"):
+        if not link.p.find('span', class_="runtime"):
             runtime_time = "unknown"
 
         # retrieve runtime from imdb
         else:
-            runtime = link.p.find('span', class_ = "runtime")
+            runtime = link.p.find('span', class_="runtime")
             runtime_text = runtime.text
 
             # ensure time in numbers only
@@ -143,7 +143,8 @@ def simple_get(url):
             else:
                 return None
     except RequestException as e:
-        print('The following error occurred during HTTP GET request to {0} : {1}'.format(url, str(e)))
+        print('The following error occurred during HTTP GET request to \
+              {0} : {1}'.format(url, str(e)))
         return None
 
 
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     # get HTML content at target URL
     html = simple_get(TARGET_URL)
 
-    # save a copy to disk in the current directory, this serves as an backup
+    # save a copy to disk in the current directory, this serves as a backup
     # of the original HTML, will be used in grading.
     with open(BACKUP_HTML, 'wb') as f:
         f.write(html)
