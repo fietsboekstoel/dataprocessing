@@ -270,7 +270,7 @@ function drawPrettyGraph(rawData) {
 
   // add label for x-axis
   context.font = "20px Arial";
-  context.fillText("Months", xCoordinateAxis, yLow)
+  context.fillText("Months", xCoordinateYAxis, yLow)
   // see beneath
 }
 
