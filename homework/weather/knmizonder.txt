@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html>
-  <head>
-	   <title>KNMI data</title>
-	</head>
-	<body>
-	   <textarea id="rawdata" style="display: none;">
-        <!-- 20170401,  108
+        20170401,  108
         20170402,  103
         20170403,   81
         20170404,   98
@@ -369,12 +362,4 @@
         20180328,   59
         20180329,   65
         20180330,   90
-        20180331,   72 -->
-     </textarea>
-     <canvas id="weatherGraph" width="1000" height="600"></canvas>
-    Made by: Rebecca de Feijter - 10639918 - Assignment CS50x Data Processing
-    Week 2 Javascript -
-    <a href="http://projects.knmi.nl/klimatologie/daggegevens/selectie.cgi">Link to data source</a>
-     <script src="weather.js"></script>
-	</body>
-</html>
+        20180331,   72
