@@ -18,7 +18,11 @@
 
 // XMLHttpRequest (works with knmizonder.txt, not yet with knmimet.txt)
 var knmi = "knmizonder.txt"
+
+// make new request
 var knmiFile = new XMLHttpRequest();
+
+// check status codes
 knmiFile.onreadystatechange = function() {
   if (this.readyState === 4 && this.status === 200) {
 
@@ -29,10 +33,10 @@ knmiFile.onreadystatechange = function() {
 knmiFile.open("GET", knmi, true);
 knmiFile.send();
 
-// program can be run by calling this function
+// runs program by calling this function
 function drawPrettyGraph(rawData) {
 
-  // get data for graph content (only when not using XMLHttpRequest)
+  // // get data for graph content (only when not using XMLHttpRequest)
   // let rawData = document.getElementById("rawdata")
   // rawData = rawData.value;
 
@@ -74,7 +78,6 @@ function drawPrettyGraph(rawData) {
       }
     }
   }
-  // not using the part below yet! (until "until here")
 
   // create array of datapoint objects
   var dataPointsArray = [];
@@ -96,8 +99,6 @@ function drawPrettyGraph(rawData) {
     // append to array
     dataPointsArray.push(object);
   }
-
-  // until here
 
   // create graph canvas
   var canvas = document.getElementById('weatherGraph');
@@ -184,7 +185,6 @@ function drawPrettyGraph(rawData) {
     ticLabel -= 5
   }
 
-
   // add graph title
   context.font = "30px Arial";
   context.fillText("Average daily temperature in De Bilt (01/04/2017-31/03/2018)", xCoordinateYAxis, yHigh * 3 / 5);
@@ -270,24 +270,5 @@ function drawPrettyGraph(rawData) {
 
   // add label for x-axis
   context.font = "20px Arial";
-  context.fillText("Months", xCoordinateYAxis, yLow)
-  // see beneath
+  context.fillText("Months", farEndXAxis / 2, yLow + 80);
 }
-
-
-// Room for improvement:
-  // - handling missing data
-    // assign missing data a value in order to not shift the graph
-    // when that value is assigned the ligns to and from that point should not be visible
-
-  // - 'Un-hardcode' the months on the x-axis
-    // based on seconds-since-formula?
-
-  // - XMLHTTPRequest
-    // ensure usage of only rows with data in txt file
-
-  // - label x-axis
-    // // add label for x-axis
-    // context.font = "20px Arial";
-    // context.fillText("Months",(farEndXAxis - xCoordinateAxis) / 2, yLow + 50)
-    // // so far not working: all other text in graph disappears when uncommented
