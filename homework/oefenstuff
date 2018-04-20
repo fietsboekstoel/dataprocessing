@@ -1,0 +1,46 @@
+
+// maatstreepjes; lijntjes in loop
+
+// var degreesLeft = maxTemp % 50;
+// var highestTic = maxTemp - degreesLeft + 50;
+// var numberOfTics = highestTic / 50;
+// var lengthOfTics = 4;
+//
+// // // eentje bij 0
+// if (minTemp < 0)
+// {
+//   // streepjes erboven
+//   for (i = yCoordinateXAxis; i < yHigh; i = i - (yHigh - yCoordinateXAxis) / numberOfTics)
+//   {
+//     context.beginPath();
+//     context.moveTo(xCoordinateAxis, i);
+//     context.lineTo(xCoordinateAxis - lengthOfTics, i);
+//     context.stroke();
+//   }
+//
+// }
+// else
+// {
+//   // 95 lengte verdelen over maxTemp in stapjes van 5
+//   for (i = yCoordinateXAxis; i < xCoordinateAxis; i = i - lengthYAxis / numberOfTics)
+//   {
+//     context.beginPath();
+//     context.moveTo(xCoordinateAxis, i);
+//     context.lineTo(xCoordinateAxis - lengthOfTics, i);
+//     context.stroke();
+//   }
+// }
+
+
+// context.beginPath();
+// context.linewidth
+// context.beginPath();
+// context.linewidth = "5";
+// context.moveTo(x-as coordinaat, y-as coordinaat + max - (max % 5))
+// max gedeeld door 5 ofzo, eerst een modulo
+// x is zelfde als x as
+// getallen erbij
+// maatjes: textjes op locaties
+
+// assenlabels: text op locatie
+// grafiektitel: text op locatie
