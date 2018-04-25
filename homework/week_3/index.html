@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<!-- HEADER MAKEN -->
+
+<html>
+  <head>
+    <!-- <link rel="stylesheet" href="style.css"> om externe css te gebruiken-->
+    <meta charset="utf-8">
+    <title>Rebecca's D3 Test</title>
+    <script type="text/javascript" src="d3/d3.v3.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      d3.select("body").append("p").text("Rebecca de Feijter - 10639918");
+      d3.select("body").append("p").text("Text about dataset");
+      // d3.json("LOTR.json", function(data) {
+      //   console.log(data[0]);
+      // });
+      // of
+      d3.select("body").selectAll("p").json("LOTR.json").enter().append("p").text("per film");
+    </script>
+    <!-- little blue circle, moet die in script? neuh je ziet m nu ook-->
+    <svg width="50" height="50">
+    <circle cx="25" cy="25" r="22"
+     fill="blue" stroke="gray" stroke-width="2"/>
+   </svg>
+  </body>
+</html>
