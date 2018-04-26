@@ -9,7 +9,8 @@ and The Hobbit movies. Graph displays runtime per movie and contains bars, a
 y-axis, an x-axis, axis labels, a graph title and a description of the data.
 
 Graph is interactive; upon hovering over a bar, the bar will change color and
-display the value of said bar.-->
+display the value of said bar, as well as other information about the movie
+that the bar represents.-->
 
 <html>
   <head>
@@ -35,6 +36,17 @@ display the value of said bar.-->
       }
       .title, .info {
         text-align: center;
+      }
+      .tooltip {
+        position: absolute;
+        width: 260px;
+        height: 110px;
+        padding: 2px;
+        font: 14px;
+        background: violet;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
       }
     </style>
   </head>
@@ -96,7 +108,17 @@ display the value of said bar.-->
         // create and call tooltip to appear when hovering on bar
         var tooltip = d3.tip()
                         .attr('class', 'tooltip')
-                        .html(function(d) {return d.RuntimeInMinutes});
+                        .attr()
+                        .html(function(d) {
+                          var text1 = "<strong>Runtime in minutes: </strong><span>" + d.RuntimeInMinutes + "</span>" + "<br>",
+                          text2 = "<strong>Budget in millions: </strong><span>" + d.BudgetInMillions + "</span>" + "<br>",
+                          text3 = "<strong>Box office revenue in millions: </strong><span>" + d.BoxOfficeRevenueInMillions + "</span>" + "<br>",
+                          text4 = "<strong>Academy award nominations: </strong><span>" + d.AcademyAwardNominations + "</span>" + "<br>",
+                          text5 = "<strong>Academy award wins: </strong><span>" + d.AcademyAwardWins + "</span>" + "<br>",
+                          text6 = "<strong>Rotten tomatoes score: </strong><span>" + d.RottenTomatoesScore + "</span>" + "<br>"
+
+                          return text1 + text2 + text3 + text4 + text5 + text6
+                        });
         svg.call(tooltip);
 
         // draw bars of bar chart
@@ -179,9 +201,10 @@ display the value of said bar.-->
         .append("p")
         .attr("class", "info")
         .text("This graph shows the runtimes of the Lord of the Rings and The \
-              Hobbit movies. The data was aqcuired for this assignment via \
-              Kaggle. The data is based on info from wikipedia pages about the \
-              movies.");
+              Hobbit movies. Upon hovering over the bar for a movie or movie \
+              series, other fun facts about the movies will display. \
+              The data was aqcuired for this assignment via Kaggle. The data \
+              is based on info from wikipedia pages about the movies.");
 
     </script>
    </svg>
