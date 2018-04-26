@@ -98,7 +98,7 @@ that the bar represents.-->
         // function for scaling y-values from data to graph area
         var yScale = d3.scale.linear()
                              .domain([600, 0])
-                             .range([totalHeight - margin.bottom - graphHeight, totalHeight - margin.bottom]);
+                             .range([margin.top, totalHeight - margin.bottom]);
 
         // function for scaling x-values from data to graph area
         var xScale = d3.scale.ordinal()
@@ -128,7 +128,7 @@ that the bar represents.-->
            .append("rect")
            .attr("y", function(d) {return yScale(d.RuntimeInMinutes)})
            .attr("width", barWidth)
-           .attr("height", function(d) {return graphHeight - yScale(d.RuntimeInMinutes)})
+           .attr("height", function(d) {return margin.top + graphHeight - yScale(d.RuntimeInMinutes)})
            .attr("x", function(d, i) {return xScale(d.Name)})
            .attr("fill", "pink")
            .on('mouseover', tooltip.show)
@@ -149,7 +149,7 @@ that the bar represents.-->
                           .orient("bottom");
         svg.append("g")
            .attr("class", "axis")
-           .attr("transform", "translate(0," + graphHeight + ")")
+           .attr("transform", "translate(0," + (graphHeight + margin.top) + ")")
            .call(xAxis)
            .selectAll("text")
            .attr("y", 0)
