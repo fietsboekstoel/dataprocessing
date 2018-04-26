@@ -1,28 +1,189 @@
 <!DOCTYPE html>
 
-<!-- HEADER MAKEN -->
+<!-- index.html
+Rebecca de Feijter - 10639918
+Data Processing - Week 3 - D3 Barchart
+
+Creates a graph from an imported JSON about features of the Lord of the Rings
+and The Hobbit movies. Graph displays runtime per movie and contains bars, a
+y-axis, an x-axis, axis labels, a graph title and a description of the data.
+
+Graph is interactive; upon hovering over a bar, the bar will change color and
+display the value of said bar.-->
 
 <html>
   <head>
-    <!-- <link rel="stylesheet" href="style.css"> om externe css te gebruiken-->
     <meta charset="utf-8">
-    <title>Rebecca's D3 Test</title>
+    <title>Rebecca's D3 Bar chart</title>
     <script type="text/javascript" src="d3/d3.v3.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+    <!-- add style elements for axes, bars and placement of graph and text -->
+    <style>
+      .axis path,
+      .axis line {
+        fill : none;
+        stroke : black;
+        shape-rendering : crispEdges;
+      }
+      rect:hover {
+        fill : HotPink;
+      }
+      .graph {
+        display : block;
+        margin : auto;
+      }
+      .title, .info {
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
+
+    <!-- include a hyperlink to the source of the data -->
+    <a href="https://www.kaggle.com/mokosan/lord-of-the-rings-character-data">Original dataset can be found here!</a>
+
     <script type="text/javascript">
-      d3.select("body").append("p").text("Rebecca de Feijter - 10639918");
-      d3.select("body").append("p").text("Text about dataset");
-      // d3.json("LOTR.json", function(data) {
-      //   console.log(data[0]);
-      // });
-      // of
-      d3.select("body").selectAll("p").json("LOTR.json").enter().append("p").text("per film");
+
+      // add graph title
+      d3.select("body")
+        .append("h1")
+        .attr("class", "title")
+        .text("Lord of the Rings and The Hobbit runtimes");
+
+      // load json for drawing graph
+      d3.json("LOTR.json", function(data) {
+
+        // consider margin to place axis labels in within svg
+        var totalWidth = 1070;
+        var totalHeight = 700;
+        var margin = {left: 100, top: 10, right: 100, bottom: 200};
+
+        // define variables for width and height of graph (rather than the svg)
+        var graphWidth = totalWidth - margin.left - margin.right;
+        var graphHeight = totalHeight - margin.top - margin.bottom;
+
+        // determine padding and number of bars in graph
+        var numberOfBars = data.length;
+        var paddingWidth = 2;
+        var barWidth = (graphWidth - paddingWidth * numberOfBars) / numberOfBars;
+
+        // create svg to draw on
+        var svg = d3.select("body")
+                    .append("svg")
+                    .attr("class", "graph")
+                    .attr("width", totalWidth)
+                    .attr("height", totalHeight)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // create array to contain values from JSON as bar labels
+        var movieNames = [];
+        for (i = 0; i < data.length; i++) {
+          movieNames.push(data[i].Name)
+        }
+
+        // function for scaling y-values from data to graph area
+        var yScale = d3.scale.linear()
+                             .domain([600, 0])
+                             .range([totalHeight - margin.bottom - graphHeight, totalHeight - margin.bottom]);
+
+        // function for scaling x-values from data to graph area
+        var xScale = d3.scale.ordinal()
+                             .domain(movieNames)
+                             .rangeRoundBands([0, graphWidth]);
+
+        // create and call tooltip to appear when hovering on bar
+        var tooltip = d3.tip()
+                        .attr('class', 'tooltip')
+                        .html(function(d) {return d.RuntimeInMinutes});
+        svg.call(tooltip);
+
+        // draw bars of bar chart
+        svg.selectAll("rect")
+           .data(data)
+           .enter()
+           .append("rect")
+           .attr("y", function(d) {return yScale(d.RuntimeInMinutes)})
+           .attr("width", barWidth)
+           .attr("height", function(d) {return graphHeight - yScale(d.RuntimeInMinutes)})
+           .attr("x", function(d, i) {return xScale(d.Name)})
+           .attr("fill", "pink")
+           .on('mouseover', tooltip.show)
+           .on('mouseout', tooltip.hide);
+
+        // create and draw y-axis
+        var yAxis = d3.svg.axis()
+                          .scale(yScale)
+                          .orient("left")
+                          .ticks(13);
+        svg.append("g")
+           .attr("class", "axis")
+           .call(yAxis);
+
+        // create and draw x-axis with rotated bar labels
+        var xAxis = d3.svg.axis()
+                          .scale(xScale)
+                          .orient("bottom");
+        svg.append("g")
+           .attr("class", "axis")
+           .attr("transform", "translate(0," + graphHeight + ")")
+           .call(xAxis)
+           .selectAll("text")
+           .attr("y", 0)
+           .attr("x", 9)
+           .attr("transform", "rotate(45)")
+           .style("text-anchor", "start");
+
+         // add y-axis label
+         svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x",0 - graphHeight / 2)
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-size", "25px")
+            .text("Runtime (minutes)");
+
+         // add x-axis label
+         svg.append("text")
+            .attr("y", totalHeight - 30)
+            .attr("x", graphWidth / 2)
+            .attr("text-anchor", "middle")
+            .style("font-size", "25px")
+            .text("Movies")
+
+
+           // // hiermee bars tekenen voor BudgetInMillions lukt nog niet
+           // svg.select("rect")
+           //    .data(data)
+           //    .enter()
+           //    .append("rect")
+           //    .attr("y", function(d) {return graphHeight - d.BudgetInMillions})
+           //    .attr("width", barWidth)
+           //    .attr("height", function(d) {return d.BudgetInMillions})
+           //    .attr("x", function(d, i) {
+           //      return i * (barWidth + paddingWidth) + margin.left + ((numberOfBars * barWidth) + (numberOfBars * paddingWidth))
+           //    })
+           //    .attr("fill", "yellow");
+      });
+
+      // add personal info to page
+      d3.select("body")
+        .append("p")
+        .attr("class", "info")
+        .text("Rebecca de Feijter - 10639918 - Data Processing");
+
+      // add info about dataset to page
+      d3.select("body")
+        .append("p")
+        .attr("class", "info")
+        .text("This graph shows the runtimes of the Lord of the Rings and The \
+              Hobbit movies. The data was aqcuired for this assignment via \
+              Kaggle. The data is based on info from wikipedia pages about the \
+              movies.");
+
     </script>
-    <!-- little blue circle, moet die in script? neuh je ziet m nu ook-->
-    <svg width="50" height="50">
-    <circle cx="25" cy="25" r="22"
-     fill="blue" stroke="gray" stroke-width="2"/>
    </svg>
   </body>
 </html>
