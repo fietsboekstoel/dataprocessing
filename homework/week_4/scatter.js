@@ -1,6 +1,8 @@
 /** Rebecca de Feijter - 10639918
 * Data Processing - Week 4 - Scatter plot
 *
+* Javascript code file processing data and drawing graph
+*
 * Creates a scatter plot from an imported JSON about mammal and bird species per
 * country,and the amount of endangered species per country. Data points in the
 * graph represent countries, their x-value represents the amount of known species
