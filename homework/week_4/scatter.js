@@ -19,8 +19,8 @@
 window.onload = function() {
 
   // include data source API's
-  var mammals = "http://stats.oecd.org/SDMX-JSON/data/WILD_LIFE/TOT_KNOWN+THREATENED+THREAT_PERCENT.MAMMAL.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA/all?&dimensionAtObservation=allDimensions"
-  var birds = "http://stats.oecd.org/SDMX-JSON/data/WILD_LIFE/TOT_KNOWN+THREATENED+THREAT_PERCENT.BIRD.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA/all?&dimensionAtObservation=allDimensions"
+  var mammals = "https://stats.oecd.org/SDMX-JSON/data/WILD_LIFE/TOT_KNOWN+THREATENED+THREAT_PERCENT.MAMMAL.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA/all?&dimensionAtObservation=allDimensions"
+  var birds = "https://stats.oecd.org/SDMX-JSON/data/WILD_LIFE/TOT_KNOWN+THREATENED+THREAT_PERCENT.BIRD.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA/all?&dimensionAtObservation=allDimensions"
 
   // ensure both data sets are loaded before continuing
   d3.queue()
