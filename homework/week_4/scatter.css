@@ -1,4 +1,20 @@
-/* HEADER MAKEN */
+/*
+Rebecca de Feijter - 10639918
+Data Processing - Week 4 - Scatter plot
+
+Creates a scatter plot from an imported JSON about mammal and bird species per
+country,and the amount of endangered species per country. Data points in the
+graph represent countries, their x-value represents the amount of known species
+in the country, y-value represents amount of endangered species, and data points
+are color coded according to ratio between those variables.
+
+Graph includes an x-axis, y-axis, axis labels, a graph title, a legend and a
+description of the data.
+
+Graph is interactive; upon hovering over a data point, it will display its
+precise values, as well as the country name. By clicking the "Mammals" or
+"Birds" button, one can switch between data about both classes of animals.
+ */
 
 .axis path,
 .axis line {
@@ -12,14 +28,14 @@
   margin : auto;
 }
 
-.link, .title, .info {
+.title, .info {
   text-align: center;
 }
 
 .tooltip {
   position: absolute;
   width: 280px;
-  height: 80px;
+  height: 85px;
   padding: 2px;
   font: 14px;
   background: violet;
@@ -40,6 +56,11 @@
   fill: pink
 }
 
+.axisLabel {
+  text-anchor: middle;
+  font-size: 25px;
+}
+
 .legendText {
   text-align: right;
   font-size: 15px;
@@ -48,4 +69,27 @@
 .legend {
   width: 30px;
   height: 15px;
+}
+
+.button {
+    background-color: pink;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+}
+
+.buttonholder {
+  text-align: center;
+}
+
+.button:hover {
+  color: black;
+}
+
+p {
+  font-size: 20px;
 }

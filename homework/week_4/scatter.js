@@ -1,363 +1,344 @@
-// HEADER maken
+/** Rebecca de Feijter - 10639918
+* Data Processing - Week 4 - Scatter plot
+*
+* Creates a scatter plot from an imported JSON about mammal and bird species per
+* country,and the amount of endangered species per country. Data points in the
+* graph represent countries, their x-value represents the amount of known species
+* in the country, y-value represents amount of endangered species, and data points
+* are color coded according to ratio between those variables.
+*
+* Graph includes an x-axis, a y-axis, axis labels, a graph title, a legend and a
+* description of the data.
+*
+* Graph is interactive; upon hovering over a data point, it will display its
+* precise values, as well as the country name. By clicking the "Mammals" or
+* "Birds" button, one can switch between data about both classes of animals.
+**/
 
-//
+// ensure program is executed when window has loaded
 window.onload = function() {
-
-
 
   // include data source API's
   var mammals = "http://stats.oecd.org/SDMX-JSON/data/WILD_LIFE/TOT_KNOWN+THREATENED+THREAT_PERCENT.MAMMAL.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA/all?&dimensionAtObservation=allDimensions"
   var birds = "http://stats.oecd.org/SDMX-JSON/data/WILD_LIFE/TOT_KNOWN+THREATENED+THREAT_PERCENT.BIRD.AUS+AUT+BEL+CAN+CHL+CZE+DNK+EST+FIN+FRA/all?&dimensionAtObservation=allDimensions"
 
-  // ensure both data sets are loaded before continueing
+  // ensure both data sets are loaded before continuing
   d3.queue()
     .defer(d3.request, mammals)
     .defer(d3.request, birds)
-    .awaitAll(goGoGo);
+    .awaitAll(processData);
 
-  function goGoGo(error, response) {
+    // introduce global variables
+    var dictArray = []
+    var arrayBirds = []
+    var arrayMammals = []
 
-    // ensure
+  // process data JSONs into right format for further use
+  function processData(error, response) {
+
+    // ensure no error has occurred
     if (error) throw error;
 
-    // console.log(response[0])
-
-    // Use response
+    // parse response JSON
     var mammalsJSON = JSON.parse(response[0].responseText)
     var birdsJSON = JSON.parse(response[1].responseText)
-    console.log(mammalsJSON)
-    // console.log(birdsJSON)
 
-
-    // ergens hiervoor ook nog de lijst met landen onthouden
+    // acquire country names from JSON
     var countries = mammalsJSON.structure.dimensions.observation[2].values
     var countryLength = countries.length
-    // console.log(countries)
-    // console.log(countryLength)
 
-
-
-    // console.log(mammalsJSON)
-    // console.log(mammalsJSON.dataSets[0].observations)
+    // acquire variable values from JSON
     var mammalsReady = mammalsJSON.dataSets[0].observations
     var birdsReady = birdsJSON.dataSets[0].observations
-    // console.log(mammalsReady)
-    // console.log(birdsReady)
-    // dit is nu een soort hele grote dict op zichzelf
 
-    // dit werkt nog niet: zegt undefined
-    // je wil eigenlijk de 1e van de array die als value in elke observatie zit
-    // var totalSpeciesMammals = mammalsReady[0]
-    // console.log(totalSpeciesMammals)
-    // totalThreatMammals =
-    // percentageThreatMammals =
+    var numberOfVariables = 3
 
-    // object createn met de hierbovenstaande waarden als values bij geschikte dicts
-    // console.log(totalSpeciesMammals)
-
-    var arryBirds = []
-    var arryMammals = []
-    var counterarry = []
+    var counterarray = []
     var counter = 0
     var counterM = 0
     var counterMa = []
 
 
-    // 10 landen
-    for (i = 0; i < 3; i++) {
-      for (k = 0; k < 10; k++) {
-        var iets = i + ":" + 0 + ":" + k
-        // console.log(iets);
-        // console.log(birdsReady[iets])
-        if (birdsReady[iets]) {
-              arryBirds.push(birdsReady[iets][0])
+    // create array including all three variable values per animal class
+    for (i = 0; i < numberOfVariables; i++) {
+      for (k = 0; k < countryLength; k++) {
+        var key = i + ":" + 0 + ":" + k
+
+        // ensure bird data has no missing data
+        if (birdsReady[key]) {
+              arrayBirds.push(birdsReady[key][0])
         }
+
+        // raise error in case of missing data
         else {
-          counter += 1
-          counterarry.push(iets)
+          new Error("Missing data detected in bird data")
         }
-        if (mammalsReady[iets]) {
-          arryMammals.push(mammalsReady[iets][0])
+
+        // ensure mammal data has no missing data
+        if (mammalsReady[key]) {
+          arrayMammals.push(mammalsReady[key][0])
         }
+
+        // raise error in case of missing data
         else {
-          counterM += 1
-          counterMa.push(iets)
+          new Error("Missing data detected in mammal data")
         }
       }
     }
-    // console.log(arryBirds)
-    // console.log(arryMammals)
-    arryLengthB = arryBirds.length
-    arryLengthM = arryMammals.length
-    // console.log(arryLengthB)
-    // console.log(arryLengthM)
-    // console.log(counterMa)
-    // console.log(arryLength)
-    // console.log(counter)
-    // console.log(counterarry)
 
-    var dictArry = []
-    // console.log(dictArry)
-
+    // convert data from array of values to array of dicts per country
     for (i = 0; i < countryLength; i++) {
       var countryDict = {
         "country": countries[i].name,
-        "totalSpeciesMammals": arryMammals[i],
-        "threatenedSpeciesMammals": arryMammals[i + 10],
-        "percentageMammals": arryMammals[i + 20],
-        "totalSpeciesBirds": arryBirds[i],
-        "threatenedSpeciesBirds": arryBirds[i + 10],
-        "percentageBirds": arryBirds[i + 20]
+        "totalSpeciesMammals": arrayMammals[i],
+        "threatenedSpeciesMammals": arrayMammals[i + 10],
+        "percentageMammals": arrayMammals[i + 20],
+        "totalSpeciesBirds": arrayBirds[i],
+        "threatenedSpeciesBirds": arrayBirds[i + 10],
+        "percentageBirds": arrayBirds[i + 20]
       }
-      dictArry.push(countryDict)
+      dictArray.push(countryDict)
     }
 
-  console.log(dictArry)
-
-  // hierbij nog selection invoeren based on button
-//   makeGraph(dictArry);
-// }
-//
-// // function makeGraph(dictArry, selection){
-//
-
-  var selection = "Mammals"
-
-  // link to data source
-  var link;
-  d3.select("body")
-    .append("p")
-    .attr("class", "link")
-    .text("Original dataset can be found here!");
-
-  // add graph title
-  var title;
-  d3.select("body")
-    .append("h1")
-    .attr("class", "title")
-    .text(function() {
-      if (selection == "Birds") {
-        title = "Relation between total number of bird species and number of threatened bird species per country"
-      }
-      else {
-        title = "Relation between total number of mammal species and number of threatened mammal species per country"
-      }
-      return title
-    });
-
-  // get max and min values of variables for scaling
-  var arryTotalBirds = arryBirds.slice(0,10)
-  console.log(arryTotalBirds)
-  var arryThreatBirds = arryBirds.slice(10,20)
-  console.log(arryThreatBirds)
-  var arryPercentageBirds = arryBirds.slice(20,)
-  console.log(arryPercentageBirds)
-
-  var minValueTotalBirds = Math.min.apply(Math, arryTotalBirds) - 15
-  var maxValueTotalBirds = Math.max.apply(Math, arryTotalBirds) + 15
-
-  var minValueThreatBirds = Math.min.apply(Math, arryThreatBirds)
-  var maxValueThreatBirds = Math.max.apply(Math, arryThreatBirds) + 15
-
-  // var minValuePercBirds = Math.min.apply(Math, arryPercentageBirds) - 20
-  // var maxValuePercBirds = Math.max.apply(Math, arryPercentageBirds) + 20
-
-  var arryTotalMammals = arryMammals.slice(0,10)
-  console.log(arryTotalMammals)
-  var arryThreatMammals = arryMammals.slice(10,20)
-  console.log(arryThreatMammals)
-  var arryPercentageMammals = arryMammals.slice(20,)
-  console.log(arryPercentageMammals)
-
-  var minValueTotalMammals = Math.min.apply(Math, arryTotalMammals) - 15
-  var maxValueTotalMammals = Math.max.apply(Math, arryTotalMammals) + 15
-
-  var minValueThreatMammals = Math.min.apply(Math, arryThreatMammals)
-  var maxValueThreatMammals = Math.max.apply(Math, arryThreatMammals) + 15
-
-  // var minValuePercMammals = Math.min.apply(Math, arryPercentageMammals)
-  // var maxValuePercMammals = Math.max.apply(Math, arryPercentageMammals)
-
-
-  console.log(minValueTotalBirds)
-  console.log(maxValueTotalBirds)
-  console.log(minValueThreatBirds)
-  console.log(maxValueThreatBirds)
-  // console.log(minValuePercBirds)
-  // console.log(maxValuePercBirds)
-
-  console.log(minValueTotalMammals)
-  console.log(maxValueTotalMammals)
-  console.log(minValueThreatMammals)
-  console.log(maxValueThreatMammals)
-  // console.log(minValuePercMammals)
-  // console.log(maxValuePercMammals)
-
-  // consider margin to place axis labels in within svg
-  var totalWidth = 1070;
-  var totalHeight = 700;
-  var margin = {left: 100, top: 10, right: 200, bottom: 200};
-
-  // define variables for width and height of graph (rather than the svg)
-  var graphWidth = totalWidth - margin.left - margin.right;
-  var graphHeight = totalHeight - margin.top - margin.bottom;
-
-  // create svg to draw on
-  var svg = d3.select("body")
-              .append("svg")
-              .attr("class", "graph")
-              .attr("width", totalWidth)
-              .attr("height", totalHeight)
-              .append("g")
-              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  var yDomainSelection, xDomainSelection;
-  if (selection == 'Birds'){
-    yDomainSelection = [maxValueThreatBirds, minValueThreatBirds]
-    xDomainSelection = [minValueTotalBirds, maxValueTotalBirds]
-  }
-  else {
-    yDomainSelection = [maxValueThreatMammals, minValueThreatMammals]
-    xDomainSelection = [minValueTotalMammals, maxValueTotalMammals]
+    // randomly choose either birds or mammals as first display
+    if (Math.random() < 0.5) {
+      makeGraph("Birds")
+    }
+    else {
+      makeGraph("Mammals")
+    }
   }
 
-  // function for scaling y-values from data to graph area
-  var yScale = d3.scale.linear()
-                       .domain(yDomainSelection)
-                       .range([margin.top, totalHeight - margin.bottom]);
+  // draw actual graph
+  function makeGraph(selection){
 
-  var xScale = d3.scale.linear()
-                       .domain(xDomainSelection)
-                       .range([0, graphWidth])
+    // add graph title depending on data (birds/mammals)
+    d3.select("body")
+      .append("h1")
+      .attr("class", "title")
+      .text(function() {
+        if (selection == "Birds") {
+          title = "Relation between total number of bird species and number of threatened bird species per country"
+        }
+        else {
+          title = "Relation between total number of mammal species and number of threatened mammal species per country"
+        }
+        return title
+      });
 
- // create and draw y-axis (nog niet te zien)
- var yAxis = d3.svg.axis()
-                   .scale(yScale)
-                   .orient("left");
- svg.append("g")
-    .attr("class", "axis")
-    .call(yAxis);
+    // divide array of combined variables into seperate arrays per variable
+    var arrayTotalBirds = arrayBirds.slice(0,10)
+    var arrayThreatBirds = arrayBirds.slice(10,20)
+    var arrayPercentageBirds = arrayBirds.slice(20,)
 
- var xAxis = d3.svg.axis()
-                   .scale(xScale)
-                   .orient("bottom");
- svg.append("g")
-    .attr("class", "axis")
-    .attr("transform", "translate(0," + (graphHeight + margin.top) + ")")
-    .call(xAxis)
+    var arrayTotalMammals = arrayMammals.slice(0,10)
+    var arrayThreatMammals = arrayMammals.slice(10,20)
+    var arrayPercentageMammals = arrayMammals.slice(20,)
 
+    // determine highest and lowest value of x and y variables for scaling
+    var minValueTotalBirds = Math.min.apply(Math, arrayTotalBirds) - 15
+    var maxValueTotalBirds = Math.max.apply(Math, arrayTotalBirds) + 15
 
-  // create and call tooltip to appear when hovering on data point
-  var tooltip = d3.tip()
-                  .attr('class', 'tooltip')
-                  .attr()
-                  .html(function(d) {
-                    var tooltipText = "<strong>Country: </strong><span>" + d.country + "</span>" + "<br>",
-                    tooltipThreat = "<strong>Number of threatened species: </strong><span>" + d["threatenedSpecies" + selection] + "</span>" + "<br>",
-                    tooltipTotal = "<strong>Total number of species: </strong><span>" + d["totalSpecies" + selection] + "</span>" + "<br>",
-                    tooltipPerc = "<strong>Percentage threatened species: </strong><span>" + d["percentage" + selection] + "%</span>" + "<br>"
+    var minValueThreatBirds = Math.min.apply(Math, arrayThreatBirds) - 15
+    var maxValueThreatBirds = Math.max.apply(Math, arrayThreatBirds) + 15
 
-                    return tooltipText + tooltipThreat + tooltipTotal + tooltipPerc
-                  });
-  svg.call(tooltip);
+    var minValueTotalMammals = Math.min.apply(Math, arrayTotalMammals) - 15
+    var maxValueTotalMammals = Math.max.apply(Math, arrayTotalMammals) + 15
 
-  console.log(dictArry[0]["totalSpecies" + selection])
-  console.log(xScale(dictArry[0]["totalSpecies" + selection]))
+    var minValueThreatMammals = Math.min.apply(Math, arrayThreatMammals)
+    var maxValueThreatMammals = Math.max.apply(Math, arrayThreatMammals) + 15
 
-  // draw bars of bar chart
-  svg.selectAll("circle")
-     .data(dictArry)
-     .enter()
-     .append("circle")
-     .attr("class", function(d) {
-       if (d["percentage" + selection] >= 30) {
-         return "high"
-       }
-       else if (d["percentage" + selection] >= 20 && d["percentage" + selection] < 30) {
-         return "medium"
-       }
-       else {
-         return "low"
-       }
-     })
-     .attr("cx", function(d) {
-        return xScale(d["totalSpecies" + selection]);
-      })
-     .attr("cy", function(d) {
-        return yScale(d["threatenedSpecies" + selection]);
-      })
-     .attr("r", 5)
-     .on('mouseover', tooltip.show)
-     .on('mouseout', tooltip.hide);
+    // consider size of svg and margin to place axis labels in within svg
+    var totalWidth = 1070;
+    var totalHeight = 700;
+    var margin = {left: 100, top: 10, right: 200, bottom: 150};
 
-  // add y-axis label
-  svg.append("text")
-     .attr("transform", "rotate(-90)")
-     .attr("y", 0 - margin.left)
-     .attr("x", 0 - graphHeight / 2)
-     .attr("dy", "1em")
-     .style("text-anchor", "middle")
-     .style("font-size", "25px")
-     .text("Number of threatened species");
+    // define variables for width and height of graph (rather than the svg)
+    var graphWidth = totalWidth - margin.left - margin.right;
+    var graphHeight = totalHeight - margin.top - margin.bottom;
 
-  // add x-axis label
-  svg.append("text")
-     .attr("y", totalHeight - 50)
-     .attr("x", graphWidth / 2)
-     .attr("text-anchor", "middle")
-     .style("font-size", "25px")
-     .text("Total number of species")
+    // create svg to draw on
+    var svg = d3.select("body")
+                .append("svg")
+                .attr("class", "graph")
+                .attr("width", totalWidth)
+                .attr("height", totalHeight)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
- // add personal info to page
- d3.select("body")
-   .append("p")
-   .attr("class", "info")
-   .text("Rebecca de Feijter - 10639918 - Data Processing");
+    // use the right minimal and maximal value based on data (birds/mammals)
+    var yDomainSelection, xDomainSelection;
+    if (selection == "Birds"){
+      yDomainSelection = [maxValueThreatBirds, minValueThreatBirds]
+      xDomainSelection = [minValueTotalBirds, maxValueTotalBirds]
+    }
+    else {
+      yDomainSelection = [maxValueThreatMammals, minValueThreatMammals]
+      xDomainSelection = [minValueTotalMammals, maxValueTotalMammals]
+    }
 
- // add info about dataset to page
- d3.select("body")
-   .append("p")
-   .attr("class", "info")
-   .text("This graph shows the runtimes of the Lord of the Rings and The \
-       Hobbit movies. Upon hovering over the bar for a movie or movie \
-       series, other fun facts about the movies will display. \
-       The data was aqcuired for this assignment via Kaggle. The data \
-       is based on info from wikipedia pages about the movies.");
+    // functions for scaling x and y values from data to graph area
+    var yScale = d3.scale.linear()
+                         .domain(yDomainSelection)
+                         .range([margin.top, totalHeight - margin.bottom]);
 
-  // add color legend to svg
-  var legendX = graphWidth + 10
+    var xScale = d3.scale.linear()
+                         .domain(xDomainSelection)
+                         .range([0, graphWidth])
 
-  svg.append("rect")
-    .attr("class", "legend high")
-    .attr("y", graphHeight / 3)
-    .attr("x", legendX);
+   // create and draw y and x axis
+   var yAxis = d3.svg.axis()
+                     .scale(yScale)
+                     .orient("left");
+   svg.append("g")
+      .attr("class", "axis")
+      .call(yAxis);
 
-  svg.append("text")
-    .attr("class", "legendText")
-    .attr("y", graphHeight / 3 + 12)
-    .attr("x", legendX + 35)
-    .text(">30% threatened");
+   var xAxis = d3.svg.axis()
+                     .scale(xScale)
+                     .orient("bottom");
+   svg.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(0," + (graphHeight + margin.top) + ")")
+      .call(xAxis)
 
-  svg.append("rect")
-    .attr("class", "legend medium")
-    .attr("y", graphHeight / 3 + 20)
-    .attr("x", legendX);
+    // create and call tooltip to appear when hovering on data point
+    var tooltip = d3.tip()
+                    .attr('class', 'tooltip')
+                    .html(function(d) {
+                      var tooltipText = "<strong>Country: </strong><span>" + d.country + "</span>" + "<br>",
+                      tooltipThreat = "<strong>Number of threatened species: </strong><span>" + d["threatenedSpecies" + selection] + "</span>" + "<br>",
+                      tooltipTotal = "<strong>Total number of species: </strong><span>" + d["totalSpecies" + selection] + "</span>" + "<br>",
+                      tooltipPerc = "<strong>Percentage threatened species: </strong><span>" + d["percentage" + selection] + "%</span>" + "<br>"
 
-  svg.append("text")
-    .attr("class", "legendText")
-    .attr("y", graphHeight / 3 + 20 + 12)
-    .attr("x", legendX + 35)
-    .text("20-30% threatened");
+                      return tooltipText + tooltipThreat + tooltipTotal + tooltipPerc
+                    });
+    svg.call(tooltip);
 
-  svg.append("rect")
-      .attr("class", "legend low")
-      .attr("y", graphHeight / 3 + 40)
-      .attr("x", legendX);
+    // draw dots/data points of scatter plot based on data (birds/mammals)
+    svg.selectAll("circle")
+       .data(dictArray)
+       .enter()
+       .append("circle")
 
-  svg.append("text")
-    .attr("class", "legendText")
-    .attr("y", graphHeight / 3 + 40 + 12)
-    .attr("x", legendX + 35)
-    .text("0-20% threatened");
+       // add class of data point for color based on 3rd variable of percentage
+       .attr("class", function(d) {
+         if (d["percentage" + selection] >= 30) {
+           return "high"
+         }
+         else if (d["percentage" + selection] >= 20 && d["percentage" + selection] < 30) {
+           return "medium"
+         }
+         else {
+           return "low"
+         }
+       })
+       .attr("cx", function(d) {
+          return xScale(d["totalSpecies" + selection]);
+        })
+       .attr("cy", function(d) {
+          return yScale(d["threatenedSpecies" + selection]);
+        })
+       .attr("r", 7)
+       .on('mouseover', tooltip.show)
+       .on('mouseout', tooltip.hide);
+
+    // add y-axis label
+    svg.append("text")
+       .attr("class", "axisLabel")
+       .attr("transform", "rotate(-90)")
+       .attr("y", 0 - margin.left)
+       .attr("x", 0 - graphHeight / 2)
+       .attr("dy", "1em")
+       .text("Number of threatened species");
+
+    // add x-axis label
+    svg.append("text")
+       .attr("class", "axisLabel")
+       .attr("y", totalHeight - 70)
+       .attr("x", graphWidth / 2)
+       .text("Total number of species");
+
+     // add color legend to svg
+    var legendX = graphWidth + 20
+
+    // colored rectangle and text for high percentages
+    svg.append("rect")
+       .attr("class", "legend high")
+       .attr("y", graphHeight / 3)
+       .attr("x", legendX);
+
+    svg.append("text")
+       .attr("class", "legendText")
+       .attr("y", graphHeight / 3 + 12)
+       .attr("x", legendX + 35)
+       .text(">30% threatened");
+
+    // colored rectangle and text for medium percentages
+    svg.append("rect")
+       .attr("class", "legend medium")
+       .attr("y", graphHeight / 3 + 20)
+       .attr("x", legendX);
+
+    svg.append("text")
+       .attr("class", "legendText")
+       .attr("y", graphHeight / 3 + 20 + 12)
+       .attr("x", legendX + 35)
+       .text("20-30% threatened");
+
+    // colored rectangle and text for low percentages
+    svg.append("rect")
+         .attr("class", "legend low")
+         .attr("y", graphHeight / 3 + 40)
+         .attr("x", legendX);
+
+    svg.append("text")
+       .attr("class", "legendText")
+       .attr("y", graphHeight / 3 + 40 + 12)
+       .attr("x", legendX + 35)
+       .text("0-20% threatened");
+
+    // add personal info to page
+    d3.select("body")
+      .append("p")
+      .attr("class", "info")
+      .text("Rebecca de Feijter - 10639918 - Data Processing");
+
+    // add info about dataset to page
+    d3.select("body")
+      .append("p")
+      .attr("class", "info")
+      .text("The graphs on this page show the amount of mammal and bird \
+            species living in a set of ten countries, as well as how many of \
+            those species are threatened. The percentages of threatened \
+            species are also represented by the colors of the data points \
+            (see legend). Upon hovering over a data point, the exact values \
+            for the variables of that country as well as the country name, are \
+            displayed. By clicking the Mammals-button or the Birds-button, \
+            the graph will switch between data about those two classes of \
+            animals. The data was aqcuired for this assignment via the website \
+            of the Organisation for Economic Co-operation and Development.");
+
+     // function for clearing the page
+     function clearGraph() {
+       d3.select("svg")
+         .remove()
+       d3.select("h1")
+         .remove()
+       d3.selectAll("p")
+         .remove()
+     }
+
+     // clear page and draw new graph upon clicking either button
+     document.getElementById("mammalButton").onclick = function() {
+       clearGraph();
+       makeGraph("Mammals");
+     };
+     document.getElementById("birdButton").onclick = function() {
+       clearGraph();
+       makeGraph("Birds");
+     };
+
   };
+
 };

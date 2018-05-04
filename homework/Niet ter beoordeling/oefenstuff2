@@ -1,0 +1,67 @@
+//
+svg.append("rect")
+   .attr("id", "birdbutton")
+   .attr("y", 0)
+   .attr("width", 100)
+   .attr("height", 50)
+   .attr("x", graphWidth /3)
+   .attr("fill", "pink");
+   // // deze wordt een oneindige loop
+   // .on("mouseclick", makeGraph(dictArry, arryBirds, arryMammals, "Birds"));
+
+svg.append("rect")
+   .attr("id", "mammalbutton")
+   .attr("y", 0)
+   .attr("width", 100)
+   .attr("height", 50)
+   .attr("x", graphWidth / 3 * 2)
+   .attr("fill", "pink");
+   // // deze wordt een oneindige loop
+   // .on("click", makeGraph(dictArry, arryBirds, arryMammals, "Mammals"))
+
+   // //
+   // svg.append("rect")
+   //    .attr("id", "birdbutton")
+   //    .attr("y", 0)
+   //    .attr("width", 100)
+   //    .attr("height", 50)
+   //    .attr("x", graphWidth /3)
+   //    .attr("fill", "pink");
+   //    // // deze wordt een oneindige loop
+   //    // .on("mouseclick", makeGraph(dictArray, arrayBirds, arrayMammals, "Birds"));
+   //
+   // svg.append("rect")
+   //    .attr("id", "mammalbutton")
+   //    .attr("y", 0)
+   //    .attr("width", 100)
+   //    .attr("height", 50)
+   //    .attr("x", graphWidth / 3 * 2)
+   //    .attr("fill", "pink");
+      // // deze wordt een oneindige loop
+      // .on("click", makeGraph(dictArray, arrayBirds, arrayMammals, "Mammals"))
+
+      // // deze zegt dat het geen functie is
+      // var birdButton = d3.getElementsbyId("birdbutton")
+      // birdButton.onclick = makeGraph(dictArray, arrayBirds, arrayMammals, "Birds")
+
+      // deze wordt een oneindige loop
+      // var birdButton = svg.selectAll("birdbutton")
+      // birdButton.on("click", function() {
+      //   makeGraph("Birds")
+      // });
+      //
+      // var mammalButton = svg.selectAll("mammalButton")
+      // mammalButton.on("click", function() {
+      //   makeGraph("Mammals")
+      // });
+
+
+      // function callGraph(bool) {
+      //   if (bool == 1) {
+      //     makeGraph(dictArray, arrayBirds, arrayMammals, "Mammals")
+      //   }
+      //   else {
+      //     makeGraph(dictArray, arrayBirds, arrayMammals, "Birds")
+      //   }
+      //
+      // }
