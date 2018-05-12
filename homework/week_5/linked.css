@@ -1,0 +1,14 @@
+.title {
+
+}
+
+.axis path,
+.axis line {
+  fill : none;
+  stroke : black;
+  shape-rendering : crispEdges;
+}
+
+.rect:hover {
+  fill : black;
+}
