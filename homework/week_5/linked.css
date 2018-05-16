@@ -1,7 +1,3 @@
-.title {
-
-}
-
 .axis path,
 .axis line {
   fill : none;
@@ -9,6 +5,61 @@
   shape-rendering : crispEdges;
 }
 
-.rect:hover {
-  fill : black;
+rect {
+  stroke: black;
+  stroke-width: 1
+}
+
+rect:hover {
+  fill: #e7e1ef
+}
+
+.tooltipBar {
+  position: absolute;
+  width: 180px;
+  height: 120px;
+  padding: 2px;
+  font: 14px;
+  background: #e7e1ef;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.tooltipPie {
+  position: ;
+  width: 180px;
+  height: 25px;
+  padding: 2px;
+  font: 14px;
+  background: #e7e1ef;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.axisLabel {
+  text-anchor: middle;
+  font-size: 25px;
+}
+
+.bird {
+  fill: #df65b0;
+}
+
+.mammal {
+  fill: #c994c7;
+}
+
+.amphibian {
+  fill: #d4b9da;
+}
+
+.legend {
+  width: 30px;
+  height: 15px;
+}
+
+.pie {
+  font-size: 25px;
 }

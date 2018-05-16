@@ -21,7 +21,7 @@
 window.onload = function() {
 
   // introduce general dictionaries per class of animals
-  var mammals, birds, amphibians, numberOfCountries;
+  var mammals, birds, amphibians, classDict, numberOfCountries, svg;
   var countriesArray = [];
   var numberOfVariables = 4;
 
@@ -33,6 +33,7 @@ window.onload = function() {
     .awaitAll(processData);
 
   // define certain variables needed for drawing plots
+  // hier kan de tussenstap nog weg misschien (in classDict response[0] zetten)
   function processData(error, response) {
     if (error) throw error;
     mammals = response[0];
@@ -45,11 +46,27 @@ window.onload = function() {
       // var countryName = mammals[i].Country
       countriesArray.push(mammals[i].Country)
     };
-    makeBarPlot();
-  };
 
 
-  function makeBarPlot() {
+
+    classDict = []
+    for (i = 0; i < numberOfCountries; i++) {
+      var countryDict = {"country": mammals[i * 4].Country,
+                         "mammals": mammals[i * 4].Value,
+                         "birds" : birds[i * 4].Value,
+                         "amphibians" : amphibians[i * 4].Value
+                          }
+      classDict.push(countryDict)
+    };
+    console.log(classDict)
+
+    makeBarPlot(classDict);
+    };
+
+
+  function makeBarPlot(data) {
+
+    console.log(mammals)
 
     // stacked bar plot gaan schrijven op svg
 
@@ -62,7 +79,7 @@ window.onload = function() {
     // consider size of svg and margin to place axis labels in within svg
     var totalWidth = 1270;
     var totalHeight = 700;
-    var margin = {left: 100, top: 10, right: 400, bottom: 150};
+    var margin = {left: 100, top: 10, right: 800, bottom: 150};
 
     // define variables for width and height of graph (rather than the svg)
     var barPlotWidth = totalWidth - margin.left - margin.right;
@@ -84,7 +101,7 @@ window.onload = function() {
     var maxValue = Math.max.apply(Math, maxValueArray)
 
     // create svg to draw on
-    var svg = d3.select("body")
+    svg = d3.select("body")
                 .append("svg")
                 .attr("class", "bar graph")
                 .attr("width", totalWidth)
@@ -125,229 +142,257 @@ window.onload = function() {
        .style("text-anchor", "start");
 
     // create and call tooltip to appear when hovering on data point
-    var tooltip = d3.tip()
-                    .attr('class', 'tooltip')
+    var tooltipBar = d3.tip()
+                    .attr('class', 'tooltipBar')
                     .html(function(d) {
-                      var tooltipTextClass = "<strong>Class: </strong><span>" + d.Species + "</span>" + "<br>",
-                      tooltipTextValue = "<strong>Number of species: </strong><span>" + d.Value + "</span>" + "<br>"
+                      var tooltipTextClass = "<strong>Class: </strong><span>" + d.z + "</span>" + "<br>",
+                      tooltipTextValue = "<strong>Number of species: </strong><span>" + d.y + "</span>" + "<br>" + "<br>",
+                      tooltipExtra = "<strong>Click here to learn how many of these species are endangered!</strong>"
 
-                      return tooltipTextClass + tooltipTextValue
+                      return tooltipTextClass + tooltipTextValue + tooltipExtra
                     });
-    svg.call(tooltip);
+    svg.call(tooltipBar);
 
 
     // choose colors for rectangles
-    var barColors = ["#f1eef6", "#d4b9da", "#c994c7"]
-    var pieColors = ["#df65b0", "#dd1c77", "#980043"]
+    var barColors = ["#df65b0", "#c994c7", "#d4b9da"]
 
-    var birdTotalValuesArray = []
 
-    // draw bird bars of bar chart
-    svg.selectAll("rect")
-       .data(birds)
-       .enter()
-       .append("rect")
-       .attr("y", function(d) {
-         if (d.IUCN == "TOT_KNOWN") {
-           birdTotalValuesArray.push(yScale(d.Value))
-           return yScale(d.Value)
-         }
-       })
-       .attr("width", barWidth)
-       .attr("height", function(d) {
-         if (d.IUCN == "TOT_KNOWN") {
-           return margin.top + barPlotHeight - yScale(d.Value)
-           }
-         })
-       .attr("x", function(d, i) {return xScale(d.Country)})
-       .attr("fill", barColors[0])
-       .on('mouseover', tooltip.show)
-       .on('mouseout', tooltip.hide)
-       .on('click', function(d) {
-         makePieChart(d.Country , "birds")
-       });
+    // Transpose the data into layers
+    var dataset = d3.layout.stack()(["birds", "mammals", "amphibians"].map(function(animalClass) {
+      return data.map(function(d) {
+        return {x: d.country, y: +d[animalClass], z: animalClass};
+      });
+    }));
 
-    // ANDERE DELEN VAN DE STACKED BAR MAKEN
+    console.log(dataset)
 
-    //  // draw mammal bars of bar chart
-    // svg.data(mammals)
-    //    .enter()
-    //    .append("rect")
-    //    .attr("y", function(d, i) {
-    //      if (d.IUCN == "TOT_KNOWN") {
-    //        return yScale(d.Value)
-    //      }
-    //    })
-    //    .attr("width", barWidth)
-    //    .attr("height", function(d) {
-    //      if (d.IUCN == "TOT_KNOWN") {
-    //        return margin.top + barPlotHeight - yScale(d.Value) - birdTotalValuesArray[i]
-    //        }
-    //      })
-    //    .attr("x", function(d, i) {return xScale(d.Country)})
-    //    .attr("fill", barColors[1])
-    //    .on('mouseover', tooltip.show)
-    //    .on('mouseout', tooltip.hide);
 
-    // // Create groups for each series, rects for each segment
-    // var groups = svg.selectAll("g.cost")
-    //   .data(countriesArray)
-    //   .enter()
-    //   .append("g")
-    //   .attr("class", "cost")
-    //   .style("fill", function(d, i) { return barColors[i]; });
-    //
-    // var rect = groups.selectAll("rect")
-    //   .data(function(d) { return d; })
-    //   .enter()
-    //   .append("rect")
-    //   .attr("x", function(d) { return x(d.x); })
-    //   .attr("y", function(d) { return y(d.y0 + d.y); })
-    //   .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
-    //   .attr("width", x.rangeBand())
-    //   .on("mouseover", function() { tooltip.style("display", null); })
-    //   .on("mouseout", function() { tooltip.style("display", "none"); })
-    //   .on("mousemove", function(d) {
-    //     var xPosition = d3.mouse(this)[0] - 15;
-    //     var yPosition = d3.mouse(this)[1] - 25;
-    //     tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-    //     tooltip.select("text").text(d.y);
-  // });
+    // Create groups for each series, rects for each segment
+    var groups = svg.selectAll("g.speciesCount")
+      .data(dataset)
+      .enter()
+      .append("g")
+      .attr("class", "speciesCount")
+      .style("fill", function(d, i) { return barColors[i]; });
 
+    // add y-axis label
+    svg.append("text")
+       .attr("class", "axisLabel")
+       .attr("transform", "rotate(-90)")
+       .attr("y", 0 - margin.left)
+       .attr("x", 0 - barPlotHeight / 2)
+       .attr("dy", "1em")
+       .text("Total number of species");
+
+    // add x-axis label
+    svg.append("text")
+       .attr("class", "axisLabel")
+       .attr("y", totalHeight - 40)
+       .attr("x", barPlotWidth / 2)
+       .text("Countries");
+
+
+
+      // add color legend to svg
+     var legendX = barPlotWidth + 20
+
+     // colored rectangle and text for high percentages
+     svg.append("rect")
+        .attr("class", "legend amphibian")
+        .attr("y", barPlotHeight / 3)
+        .attr("x", legendX);
+
+     svg.append("text")
+        .attr("class", "legendText")
+        .attr("y", barPlotHeight / 3 + 12)
+        .attr("x", legendX + 35)
+        .text("Bird species");
+
+     // colored rectangle and text for medium percentages
+     svg.append("rect")
+        .attr("class", "legend mammal")
+        .attr("y", barPlotHeight / 3 + 20)
+        .attr("x", legendX);
+
+     svg.append("text")
+        .attr("class", "legendText")
+        .attr("y", barPlotHeight / 3 + 20 + 12)
+        .attr("x", legendX + 35)
+        .text("Mammal species");
+
+     // colored rectangle and text for low percentages
+     svg.append("rect")
+          .attr("class", "legend bird")
+          .attr("y", barPlotHeight / 3 + 40)
+          .attr("x", legendX);
+
+     svg.append("text")
+        .attr("class", "legendText")
+        .attr("y", barPlotHeight / 3 + 40 + 12)
+        .attr("x", legendX + 35)
+        .text("Amphibian species");
+
+    // add personal info to page
+    d3.select("body")
+      .append("p")
+      .attr("class", "info")
+      .text("Rebecca de Feijter - 10639918 - Data Processing");
+
+    // add info about dataset to page
+    d3.select("body")
+      .append("p")
+      .attr("class", "info")
+      .text("The bar graph on this page shows the amount of bird, mammal and \
+            amphibian species living in a set of ten countries. Upon clicking \
+            on parts of the bar graph, a pie chart appears containing \
+            information on how many of those species are vulnerable, \
+            endangered and critically endangered. The number of bird species, \
+            mammal species and amphibian species are represented by different \
+            colors (see legend), and can be inspected by hovering over parts \
+            of the bar graph. The data was aqcuired for this assignment via \
+            the website of the Organisation for Economic Co-operation and \
+            Development.");
+
+    var rect = groups.selectAll("rect")
+      .data(function(d) { return d; })
+      .enter()
+      .append("rect")
+      .attr("x", function(d) { return xScale(d.x); })
+      .attr("y", function(d) { return yScale(d.y0 + d.y); })
+      .attr("height", function(d) { return yScale(d.y0) - yScale(d.y0 + d.y); })
+      .attr("width", xScale.rangeBand())
+      .on('mouseover', tooltipBar.show)
+      .on('mouseout', tooltipBar.hide)
+      // hieronder moet kloppen om goede getallen voor pie te krijgen, nu altijd amphibians
+      .on('click', function(d, i) {
+        makePieChart(d.x , d.z)});
 
   };
 
-  function makePieChart(whichCountry, whichClass) {
-    var totalSpecies, endangered, critically, vulnerable;
-    console.log("dit klopt")
-    console.log(whichCountry)
-    for (i = 0; i < numberOfVariables * numberOfCountries; i+=4) {
-      // console.log(whichClass + "[i].Country")
-      console.log(birds[i].Country)
-      console.log(typeof(birds[i].Country))
-      console.log(typeof(whichCountry))
 
-      if (whichClass + "[i].Country" == whichCountry) {
-        console.log("ja")
-        totalSpecies = whichClass + "[i].Value"
+  function makePieChart(whichCountry, whichClassString) {
+
+    // var pieColors = ["#e7298a", "#ce1256", "#980043", "#67001f"]
+
+
+    if (whichClassString == "birds") {
+      whichClass = birds;
+    }
+    else if (whichClassString == "mammals") {
+      whichClass = mammals;
+    }
+    else {
+      whichClass = amphibians;
+    };
+
+    var totalSpecies, endangered, critically, vulnerable, doingFine;
+    for (i = 0; i < numberOfVariables * numberOfCountries; i+=4) {
+
+      if (whichClass[i].Country == whichCountry) {
+        totalSpecies = whichClass[i].Value
 
         // dit worden de waardes in de pie (met totaal min de andere 3 als de rest)
-        endangered = whichClass + "[i + 1].Value"
-        critically = whichClass + "[i + 2].Value"
-        vulnerable = whichClass + "[i + 3].Value"
-      }
-      else {
-        console.log("nee")
+        endangered = whichClass[i + 1].Value
+        critically = whichClass[i + 2].Value
+        vulnerable = whichClass[i + 3].Value
+        doingFine = totalSpecies - endangered - critically - vulnerable;
+        console.log(totalSpecies)
+        console.log(endangered)
+        console.log(critically)
+        console.log(vulnerable)
       }
     }
+
+    endangeredPercent = Math.round(endangered / totalSpecies * 1000) / 10;
+    criticallyPercent = Math.round(critically / totalSpecies * 1000) / 10;
+    vulnerablePercent = Math.round(vulnerable / totalSpecies * 1000) / 10;
+    doingFinePercent = Math.round((100 - endangered - critically - vulnerable) * 10) / 10;
+    console.log(totalSpecies)
+    console.log(endangered)
+    console.log(critically)
     console.log(vulnerable)
+    console.log(doingFine)
+
+
+    var pieWidth = 800;
+    var pieHeight = 800;
+    var pieRadius = 200;
+    var pieColors = ["#e7298a", "#ce1256", "#980043", "#67001f"];
+
+    pieDictArray = [
+      {"label": "Not endangered", "number": doingFine, "percentage": doingFinePercent},
+      {"label": "Vulnerable", "number": vulnerable, "percentage": vulnerablePercent},
+      {"label": "Endangered", "number": endangered, "percentage": endangeredPercent},
+      {"label": "Critically endangered", "number": critically, "percentage": criticallyPercent}];
+
+
+    // create and call tooltip to appear when hovering on data point
+    var tooltipPie = d3.tip()
+                    .attr('class', 'tooltipPie')
+                    .html(function(d) {
+                      var tooltipTextValue = "<strong>Number of species: </strong><span>" + d.number + "</span>" + "<br>"
+
+                      return tooltipTextValue
+                    });
+    svg.call(tooltipPie);
+
+    var vis = d3.select('svg')
+                .append("svg")
+                .data([pieDictArray])
+                .attr("width", pieWidth)
+                .attr("height", pieHeight)
+                .append("g")
+                .attr("transform", "translate(" + 700 + "," + 300 + ")");
+
+    var pie = d3.layout.pie()
+                .value(function(d){
+                  return d.percentage;
+                });
+
+    // Declare an arc generator function
+    var arc = d3.svg.arc()
+                    .outerRadius(pieRadius);
+
+    // Select paths, use arc generator to draw
+    var arcs = vis.selectAll("g.slice")
+                  .data(pie)
+                  .enter()
+                  .append("g")
+                  .attr("class", "slice")
+                  .on('mouseover', tooltipPie.show)
+                  .on('mouseout', tooltipPie.hide);
+
+    arcs.append("path")
+        .attr("fill", function(d, i){
+          return pieColors[i];
+        })
+        .attr("d", function (d) {
+          return arc(d);
+        });
+
+    // Add the text
+    arcs.append("text")
+        .attr("transform", function(d){
+            d.innerRadius = 230;
+            d.outerRadius = pieRadius;
+            return "translate(" + arc.centroid(d) + ")";
+          })
+        .attr("text-anchor", "middle")
+        .text( function(d, i) {
+          return pieDictArray[i].percentage + '% ' + pieDictArray[i].label;
+        });
+
+    vis.append("text")
+       .attr("class", "pie title")
+       .attr("text-anchor", "middle")
+       .text("Percentages of endangered " + whichClassString.slice(0, -1) + " species in " + whichCountry + ":");
+
+   // total number of species toevoegen als text onder pie?
+
+
   };
 
-
-  //
-  //   // draw dots/data points of scatter plot based on data (birds/mammals)
-  //   svg.selectAll("circle")
-  //      .data(dictArray)
-  //      .enter()
-  //      .append("circle")
-  //
-  //      // add class of data point for color based on 3rd variable of percentage
-  //      .attr("class", function(d) {
-  //        if (d["percentage" + selection] >= 30) {
-  //          return "high"
-  //        }
-  //        else if (d["percentage" + selection] >= 20 && d["percentage" + selection] < 30) {
-  //          return "medium"
-  //        }
-  //        else {
-  //          return "low"
-  //        }
-  //      })
-  //      .attr("cx", function(d) {
-  //         return xScale(d["totalSpecies" + selection]);
-  //       })
-  //      .attr("cy", function(d) {
-  //         return yScale(d["threatenedSpecies" + selection]);
-  //       })
-  //      .attr("r", 7)
-  //      .on('mouseover', tooltip.show)
-  //      .on('mouseout', tooltip.hide);
-  //
-  //   // add y-axis label
-  //   svg.append("text")
-  //      .attr("class", "axisLabel")
-  //      .attr("transform", "rotate(-90)")
-  //      .attr("y", 0 - margin.left)
-  //      .attr("x", 0 - graphHeight / 2)
-  //      .attr("dy", "1em")
-  //      .text("Number of threatened species");
-  //
-  //   // add x-axis label
-  //   svg.append("text")
-  //      .attr("class", "axisLabel")
-  //      .attr("y", totalHeight - 70)
-  //      .attr("x", graphWidth / 2)
-  //      .text("Total number of species");
-  //
-  //    // add color legend to svg
-  //   var legendX = graphWidth + 20
-  //
-  //   // colored rectangle and text for high percentages
-  //   svg.append("rect")
-  //      .attr("class", "legend high")
-  //      .attr("y", graphHeight / 3)
-  //      .attr("x", legendX);
-  //
-  //   svg.append("text")
-  //      .attr("class", "legendText")
-  //      .attr("y", graphHeight / 3 + 12)
-  //      .attr("x", legendX + 35)
-  //      .text(">30% threatened");
-  //
-  //   // colored rectangle and text for medium percentages
-  //   svg.append("rect")
-  //      .attr("class", "legend medium")
-  //      .attr("y", graphHeight / 3 + 20)
-  //      .attr("x", legendX);
-  //
-  //   svg.append("text")
-  //      .attr("class", "legendText")
-  //      .attr("y", graphHeight / 3 + 20 + 12)
-  //      .attr("x", legendX + 35)
-  //      .text("20-30% threatened");
-  //
-  //   // colored rectangle and text for low percentages
-  //   svg.append("rect")
-  //        .attr("class", "legend low")
-  //        .attr("y", graphHeight / 3 + 40)
-  //        .attr("x", legendX);
-  //
-  //   svg.append("text")
-  //      .attr("class", "legendText")
-  //      .attr("y", graphHeight / 3 + 40 + 12)
-  //      .attr("x", legendX + 35)
-  //      .text("0-20% threatened");
-  //
-  //   // add personal info to page
-  //   d3.select("body")
-  //     .append("p")
-  //     .attr("class", "info")
-  //     .text("Rebecca de Feijter - 10639918 - Data Processing");
-  //
-  //   // add info about dataset to page
-  //   d3.select("body")
-  //     .append("p")
-  //     .attr("class", "info")
-  //     .text("The graphs on this page show the amount of mammal and bird \
-  //           species living in a set of ten countries, as well as how many of \
-  //           those species are threatened. The percentages of threatened \
-  //           species are also represented by the colors of the data points \
-  //           (see legend). Upon hovering over a data point, the exact values \
-  //           for the variables of that country as well as the country name, are \
-  //           displayed. By clicking the Mammals-button or the Birds-button, \
-  //           the graph will switch between data about those two classes of \
-  //           animals. The data was aqcuired for this assignment via the website \
-  //           of the Organisation for Economic Co-operation and Development.");
   //
   //    // function for clearing the page
   //    function clearGraph() {
