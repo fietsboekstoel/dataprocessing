@@ -58,7 +58,6 @@ window.onload = function() {
                           }
       classDict.push(countryDict)
     };
-    console.log(classDict)
 
     makeBarPlot(classDict);
     };
@@ -66,20 +65,17 @@ window.onload = function() {
 
   function makeBarPlot(data) {
 
-    console.log(mammals)
-
-    // stacked bar plot gaan schrijven op svg
-
     // add graph title
-    d3.select("body")
+    d3.select("#barSvg")
       .append("h1")
       .attr("class", "title")
       .text("Number of mammal, bird and amphibian species per country");
 
     // consider size of svg and margin to place axis labels in within svg
-    var totalWidth = 1270;
+    // var totalWidth = 870;
+    totalWidth = d3.select("#barSvg")[0][0].clientWidth;
     var totalHeight = 700;
-    var margin = {left: 100, top: 10, right: 800, bottom: 150};
+    var margin = {left: 100, top: 10, right: 200, bottom: 150};
 
     // define variables for width and height of graph (rather than the svg)
     var barPlotWidth = totalWidth - margin.left - margin.right;
@@ -100,8 +96,9 @@ window.onload = function() {
     };
     var maxValue = Math.max.apply(Math, maxValueArray)
 
+
     // create svg to draw on
-    svg = d3.select("body")
+    svg = d3.select('#barSvg')
                 .append("svg")
                 .attr("class", "bar graph")
                 .attr("width", totalWidth)
@@ -165,9 +162,6 @@ window.onload = function() {
       });
     }));
 
-    console.log(dataset)
-
-
     // Create groups for each series, rects for each segment
     var groups = svg.selectAll("g.speciesCount")
       .data(dataset)
@@ -188,7 +182,7 @@ window.onload = function() {
     // add x-axis label
     svg.append("text")
        .attr("class", "axisLabel")
-       .attr("y", totalHeight - 40)
+       .attr("y", totalHeight - 30)
        .attr("x", barPlotWidth / 2)
        .text("Countries");
 
@@ -234,13 +228,13 @@ window.onload = function() {
         .text("Amphibian species");
 
     // add personal info to page
-    d3.select("body")
+    d3.select("#barSvg")
       .append("p")
       .attr("class", "info")
       .text("Rebecca de Feijter - 10639918 - Data Processing");
 
     // add info about dataset to page
-    d3.select("body")
+    d3.select("#barSvg")
       .append("p")
       .attr("class", "info")
       .text("The bar graph on this page shows the amount of bird, mammal and \
@@ -273,9 +267,6 @@ window.onload = function() {
 
   function makePieChart(whichCountry, whichClassString) {
 
-    // var pieColors = ["#e7298a", "#ce1256", "#980043", "#67001f"]
-
-
     if (whichClassString == "birds") {
       whichClass = birds;
     }
@@ -297,27 +288,18 @@ window.onload = function() {
         critically = whichClass[i + 2].Value
         vulnerable = whichClass[i + 3].Value
         doingFine = totalSpecies - endangered - critically - vulnerable;
-        console.log(totalSpecies)
-        console.log(endangered)
-        console.log(critically)
-        console.log(vulnerable)
       }
     }
 
     endangeredPercent = Math.round(endangered / totalSpecies * 1000) / 10;
     criticallyPercent = Math.round(critically / totalSpecies * 1000) / 10;
     vulnerablePercent = Math.round(vulnerable / totalSpecies * 1000) / 10;
-    doingFinePercent = Math.round((100 - endangered - critically - vulnerable) * 10) / 10;
-    console.log(totalSpecies)
-    console.log(endangered)
-    console.log(critically)
-    console.log(vulnerable)
-    console.log(doingFine)
+    doingFinePercent = Math.round((100 - endangeredPercent - criticallyPercent - vulnerablePercent) * 10) / 10;
 
 
-    var pieWidth = 800;
-    var pieHeight = 800;
-    var pieRadius = 200;
+    var pieWidth =  d3.select("#barSvg")[0][0].clientWidth;
+    var pieHeight = pieWidth;
+    var pieRadius = pieWidth / 4;
     var pieColors = ["#e7298a", "#ce1256", "#980043", "#67001f"];
 
     pieDictArray = [
@@ -327,23 +309,15 @@ window.onload = function() {
       {"label": "Critically endangered", "number": critically, "percentage": criticallyPercent}];
 
 
-    // create and call tooltip to appear when hovering on data point
-    var tooltipPie = d3.tip()
-                    .attr('class', 'tooltipPie')
-                    .html(function(d) {
-                      var tooltipTextValue = "<strong>Number of species: </strong><span>" + d.number + "</span>" + "<br>"
-
-                      return tooltipTextValue
-                    });
-    svg.call(tooltipPie);
-
-    var vis = d3.select('svg')
+    var svgPie = d3.select("#pieSvg")
                 .append("svg")
                 .data([pieDictArray])
                 .attr("width", pieWidth)
                 .attr("height", pieHeight)
+                .attr("class", "pieSvg")
                 .append("g")
-                .attr("transform", "translate(" + 700 + "," + 300 + ")");
+                .attr("transform", "translate(" + pieWidth * 0.5 + "," + pieHeight * 0.4 + ")");
+
 
     var pie = d3.layout.pie()
                 .value(function(d){
@@ -354,14 +328,30 @@ window.onload = function() {
     var arc = d3.svg.arc()
                     .outerRadius(pieRadius);
 
+    // create and call tooltip to appear when hovering on data point
+    var tooltipPie = d3.tip()
+                    .attr('class', 'tooltipPie')
+                    .html(function(d) {
+                      var tooltipTextValue = "<strong>Number of species: </strong><span>" + d.data.number + "</span>" + "<br>"
+
+                      return tooltipTextValue
+                    });
+    svgPie.call(tooltipPie);
+
     // Select paths, use arc generator to draw
-    var arcs = vis.selectAll("g.slice")
+    var arcs = svgPie.selectAll("g.slice")
                   .data(pie)
                   .enter()
                   .append("g")
                   .attr("class", "slice")
                   .on('mouseover', tooltipPie.show)
-                  .on('mouseout', tooltipPie.hide);
+                  .on('mouseout', tooltipPie.hide)
+                  .on('mousemove', function() {
+                    mouseX = d3.event.clientX;
+                    mouseY = d3.event.clientY;
+                    tooltipPie.style("top", mouseY + "px");
+                    tooltipPie.style("left", mouseX + "px");
+                  });
 
     arcs.append("path")
         .attr("fill", function(d, i){
@@ -374,35 +364,88 @@ window.onload = function() {
     // Add the text
     arcs.append("text")
         .attr("transform", function(d){
-            d.innerRadius = 230;
+            d.innerRadius = pieRadius * 1.5;
             d.outerRadius = pieRadius;
             return "translate(" + arc.centroid(d) + ")";
           })
+        .attr("class", "percentages")
         .attr("text-anchor", "middle")
         .text( function(d, i) {
-          return pieDictArray[i].percentage + '% ' + pieDictArray[i].label;
+          return pieDictArray[i].percentage + '%';
         });
 
-    vis.append("text")
-       .attr("class", "pie title")
+    svgPie.append("text")
+       .attr("class", "pieTitle")
+       .attr('y', -pieHeight*0.36)
        .attr("text-anchor", "middle")
        .text("Percentages of endangered " + whichClassString.slice(0, -1) + " species in " + whichCountry + ":");
 
    // total number of species toevoegen als text onder pie?
+   svgPie.append("text")
+      .attr("class", "pieNumberInfo")
+      .attr('y', pieHeight*0.36)
+      .attr("text-anchor", "middle")
+      .text("Total number of " + whichClassString.slice(0, -1) + " species in " + whichCountry + ": " + totalSpecies);
+
+   // add color legend to svg
+   var legendY = pieHeight - 85
+
+  // colored rectangle and text for vulnerable species
+  svgPie.append("rect")
+     .attr("class", "legend vulnerable")
+     .attr("y", legendY/2)
+     .attr("x", pieWidth * 0.1);
+
+  svgPie.append("text")
+     .attr("class", "legendText")
+     .attr("y", legendY/2 + 12)
+     .attr("x", pieWidth * 0.1 + 35)
+     .text("= Vulnerable");
+
+  // colored rectangle and text for endangered species
+  svgPie.append("rect")
+     .attr("class", "legend endangered")
+     .attr("y", legendY/2 + 40)
+     .attr("x", -pieWidth * 0.2);
+
+  svgPie.append("text")
+     .attr("class", "legendText")
+     .attr("y", legendY/2 + 40 + 12)
+     .attr("x", -pieWidth * 0.2 + 35)
+     .text("= Endangered");
+
+ // colored rectangle and text for critically endangered species
+ svgPie.append("rect")
+    .attr("class", "legend critically")
+    .attr("y", legendY/2 + 40)
+    .attr("x", pieWidth * 0.1);
+
+ svgPie.append("text")
+    .attr("class", "legendText")
+    .attr("y", legendY/2 + 40 + 12)
+    .attr("x", pieWidth * 0.1 + 35)
+    .text("= Critically endangered");
+
+ // colored rectangle and text for not endangered species
+ svgPie.append("rect")
+    .attr("class", "legend doingFine")
+    .attr("y", legendY/2)
+    .attr("x", -pieWidth * 0.2);
+
+ svgPie.append("text")
+    .attr("class", "legendText")
+    .attr("y", legendY/2 + 12)
+    .attr("x", -pieWidth * 0.2 + 35)
+    .text("= Not endangered");
 
 
   };
 
-  //
-  //    // function for clearing the page
-  //    function clearGraph() {
-  //      d3.select("svg")
-  //        .remove()
-  //      d3.select("h1")
-  //        .remove()
-  //      d3.selectAll("p")
-  //        .remove()
-  //    }
+     // // function for clearing the page
+     // function clearGraph() {
+     //   d3.select("svgPie")
+     //     .remove()
+     // }
   //
   //    // clear page and draw new graph upon clicking either button
   //    document.getElementById("mammalButton").onclick = function() {

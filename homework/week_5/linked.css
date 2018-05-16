@@ -10,14 +10,15 @@ rect {
   stroke-width: 1
 }
 
-rect:hover {
+rect:hover, path:hover {
   fill: #e7e1ef
 }
 
+
 .tooltipBar {
   position: absolute;
-  width: 180px;
-  height: 120px;
+  width: 190px;
+  height: 160px;
   padding: 2px;
   font: 14px;
   background: #e7e1ef;
@@ -27,8 +28,8 @@ rect:hover {
 }
 
 .tooltipPie {
-  position: ;
-  width: 180px;
+  position: absolute;
+  width: 200px;
   height: 25px;
   padding: 2px;
   font: 14px;
@@ -60,6 +61,27 @@ rect:hover {
   height: 15px;
 }
 
-.pie {
-  font-size: 25px;
+.pieTitle {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.vulnerable {
+  fill: #ce1256;
+}
+
+.endangered {
+  fill: #980043;
+}
+
+.critically {
+  fill: #67001f;
+}
+
+.doingFine {
+  fill: #e7298a;
+}
+
+.pieSvg {
+  transform: translateY(10%);
 }
