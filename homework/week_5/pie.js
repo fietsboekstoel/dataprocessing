@@ -61,7 +61,7 @@ function drawPie(svgPie, pieDictArray, pieColors, pieRadius, pieHeight, pieWidth
                           return d.percentage;
                         });
 
-    // Declare an arc generator function
+    // create an arc generator function
     var arc = d3.svg.arc()
                     .outerRadius(pieRadius);
 
@@ -75,7 +75,7 @@ function drawPie(svgPie, pieDictArray, pieColors, pieRadius, pieHeight, pieWidth
                         });
     svgPie.call(tooltipPie);
 
-    // Select draw parts/slices/paths, use arc generator to draw
+    // select draw parts/slices/paths, use arc generator to draw
     var arcs = svgPie.selectAll("g.slice")
                      .data(pie)
                      .enter()
@@ -98,7 +98,7 @@ function drawPie(svgPie, pieDictArray, pieColors, pieRadius, pieHeight, pieWidth
             return arc(d);
         });
 
-    // Add percentages as text
+    // add percentages as text
     arcs.append("text")
         .attr("transform", function(d){
             d.innerRadius = pieRadius * 1.5;

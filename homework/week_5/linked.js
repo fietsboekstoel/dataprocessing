@@ -80,7 +80,6 @@ window.onload = function() {
             }
         };
 
-
         // add graph title
         d3.select("#barSvg")
           .append("h1")
@@ -353,7 +352,7 @@ window.onload = function() {
         totalSpecies = determinePercentages(whichCountry, whichClass, numberOfVariables, numberOfCountries)[1]
         drawPie(svgPie, pieDictArray, pieColors, pieRadius, pieHeight, pieWidth, whichClassString, whichCountry)
 
-      };
+    };
 
     // draw new bar graph upon clicking either button (not removing previous one yet)
     document.getElementById("areaYesButton").onclick = function() {
