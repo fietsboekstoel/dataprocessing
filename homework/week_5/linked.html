@@ -1,28 +1,37 @@
 <!DOCTYPE html>
 
 <!-- Rebecca de Feijter - 10639918
-Data Processing - Week 4 - Scatter plot
+Data Processing - Week 5/6 - Linked views
 
-HTML file (containing hyperlink to original data and buttons)
+HTML file (containing necessary files, hyperlink to original data and buttons)
 
-Creates a scatter plot from an imported JSON about mammal and bird species per
-country,and the amount of endangered species per country. Data points in the
-graph represent countries, their x-value represents the amount of known species
-in the country, y-value represents amount of endangered species, and data points
-are color coded according to ratio between those variables.
-
-Graph includes an x-axis, y-axis, axis labels, a graph title, a legend and a
-description of the data.
-
-Graph is interactive; upon hovering over a data point, it will display its
-precise values, as well as the country name. By clicking the "Mammals" or
-"Birds" button, one can switch between data about both classes of animals. -->
+* Creates a stacked bar graph from imported csv's about mammal, bird and
+* amphibian species per country, and the amount of endangered species per
+* country. Stacked bars in the graph represent countries, their height
+* represents the total amount of known species in the country. Different animal
+* classes contributing to that total are colored differently (see legend).
+*
+* Bar graph includes an x-axis, a y-axis, axis labels, a graph title, a legend
+* and a description of the data.
+*
+* Graph is interactive; upon hovering over a component, it will display its
+* precise values, as well as the animal class it concerns. By clicking the
+* "Absolute number of species" or "Number of species per 1000 km2" button, one
+* can switch between data that either takes country size into account or not.
+* Upon clicking on a bar graph component, a pie chart will appear, containing
+* information about how many species are endangered. The pie charts display
+* percentages of the total amount of species per country, as well as the
+* absolute number of species, when hovering over a slice of the pie chart.-->
 
 <html>
   <head>
     <meta charset="utf-8">
     <title>Rebecca's Linked views</title>
+
+    <!-- file needed for use of bootstrap -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+    <!-- files needed for use of d3, tooltip and queue -->
     <script type="text/javascript" src="d3/d3.v3.js"></script>
     <script type="text/javascript" src="d3/d3tip.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js"></script>
@@ -30,23 +39,35 @@ precise values, as well as the country name. By clicking the "Mammals" or
     <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
     <script src="https://d3js.org/d3-request.v1.min.js"></script>
     <script type="text/javascript" src="d3/d3-queue.js"></script>
+
+    <!-- javascript content files -->
     <script type="text/javascript" src="linked.js"></script>
+    <script type="text/javascript" src="pie.js" ></script>
+
+    <!-- files needed for use of bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
     <link rel="stylesheet" type="text/css" href="linked.css">
   </head>
   <body>
     <div class="container">
+
+      <!-- source of original dataset -->
       <a class="linkje" href="https://www.oecd-ilibrary.org/environment/data/oecd-environment-statistics/threatened-species_data-00605-en">Original dataset can be found here!</a>
       <div class="row">
+        <a type="button" class="btn btn-default" id="areaNoButton">Absolute number of species</a>
+        <a type="button" class="btn btn-default" id="areaYesButton">Number of species per 1000 km2</a>
         <div class="col-lg-7">
           <div id="barSvg"></div>
         </div>
         <div class="col-lg-5">
-          <a type="button" class="btn btn-success" href="https://www.wnf.nl/doe-mee/word-donateur.htm">Click here to make a donation to the World Wide Fund for Nature</a>
           <div id="pieSvg"></div>
         </div>
+    </div>
+    <div class="row">
+      <a type="button" class="btn btn-success" href="https://www.wnf.nl/doe-mee/word-donateur.htm">Click here to make a donation to the World Wide Fund for Nature</a>
     </div>
   </div>
   </body>

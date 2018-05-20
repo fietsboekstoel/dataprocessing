@@ -1,3 +1,28 @@
+/*
+Rebecca de Feijter - 10639918
+Data Processing - Week 5/6 - Linked views
+
+Css style sheet
+
+* Creates a stacked bar graph from imported csv's about mammal, bird and
+* amphibian species per country, and the amount of endangered species per
+* country. Stacked bars in the graph represent countries, their height
+* represents the total amount of known species in the country. Different animal
+* classes contributing to that total are colored differently (see legend).
+*
+* Bar graph includes an x-axis, a y-axis, axis labels, a graph title, a legend
+* and a description of the data.
+*
+* Graph is interactive; upon hovering over a component, it will display its
+* precise values, as well as the animal class it concerns. By clicking the
+* "Absolute number of species" or "Number of species per 1000 km2" button, one
+* can switch between data that either takes country size into account or not.
+* Upon clicking on a bar graph component, a pie chart will appear, containing
+* information about how many species are endangered. The pie charts display
+* percentages of the total amount of species per country, as well as the
+* absolute number of species, when hovering over a slice of the pie chart. */
+
+
 .axis path,
 .axis line {
   fill : none;
@@ -10,7 +35,7 @@ rect {
   stroke-width: 1
 }
 
-rect:hover, path:hover {
+rect:hover:not(.legend), path:hover {
   fill: #e7e1ef
 }
 
@@ -44,7 +69,7 @@ rect:hover, path:hover {
   font-size: 25px;
 }
 
-.bird {
+.amphibian {
   fill: #df65b0;
 }
 
@@ -52,7 +77,7 @@ rect:hover, path:hover {
   fill: #c994c7;
 }
 
-.amphibian {
+.bird {
   fill: #d4b9da;
 }
 
